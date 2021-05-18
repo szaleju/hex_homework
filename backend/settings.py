@@ -124,7 +124,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
-MEDIA_URL = '/images/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'static/images'
 
 # Default primary key field type

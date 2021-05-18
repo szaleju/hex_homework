@@ -4,11 +4,27 @@ from django.db.models.fields import BooleanField, CharField
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 
+from io import BytesIO
+from django.core.files import File
+from PIL import Image as Picture
+
+
 PLAN_STATUS = (
     ('basic', 'Basic'),
     ('premium', 'Premium'),
     ('enterprise', 'Enterprise'),
 )
+
+
+def make_thumbnail(image, size):
+
+    im = Picture.open(image)
+    im.convert('RGB')
+    im.thumbnail(size)
+    thumb_io = BytesIO()
+    im.save(thumb_io, 'JPEG', quality=85)
+    thumbnail = File(thumb_io, name=image.name)
+    return thumbnail
 
 
 class Plan(models.Model):
@@ -23,14 +39,19 @@ class Plan(models.Model):
 
 class Image(models.Model):
     user = ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    original = ImageField()
+    original = ImageField(upload_to='images/')
     thumbnail_m = ImageField(
-        upload_to='images/thumbnails/m', blank=True, null=True)
+        upload_to='images/thumbnails/m/', blank=True, null=True)
     thumbnail_s = ImageField(
-        upload_to='images/thumbnails/s', blank=True, null=True)
+        upload_to='images/thumbnails/s/', blank=True, null=True)
 
     def __str__(self):
         return str(self.original.url)
+
+    def save(self, *args, **kwargs):
+        self.thumbnail_s = make_thumbnail(self.original, (200, 200))
+        self.thumbnail_m = make_thumbnail(self.original, (400, 400))
+        super().save(*args, **kwargs)
 
 
 class Profile(models.Model):
