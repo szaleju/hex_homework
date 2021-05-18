@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import Image, Profile
 from .serializers import EnterprisePlanSerializer, BasicPlanSerializer
 from rest_framework.decorators import api_view
@@ -6,7 +5,7 @@ from rest_framework.response import Response
 
 
 @api_view(['GET'])
-def ListImages(request):
+def list_images(request):
     user = request.user
     profile = Profile.objects.get(user=user)
     images = Image.objects.filter(user=user)
@@ -16,3 +15,12 @@ def ListImages(request):
     else:
         serializer = BasicPlanSerializer(images, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+def upload_image(request):
+    user = request.user
+    image = request.FILES.get('image')
+    Image.objects.create()(user=user, original=image)
+    Image.save()
+    return Response('Image was uploaded')
