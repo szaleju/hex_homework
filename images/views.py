@@ -24,3 +24,12 @@ def upload_image(request):
     Image.objects.create()(user=user, original=image)
     Image.save()
     return Response('Image was uploaded')
+
+
+@api_view(['GET'])
+def list_routes(request):
+    routes = [
+        '/api/images/',
+        '/api/upload/'
+    ]
+    return Response(routes)
