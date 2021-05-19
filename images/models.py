@@ -3,10 +3,12 @@ from django.contrib.auth.models import User
 from django.db.models.fields import BooleanField, CharField, DateTimeField, URLField
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
+from django.utils import timezone
 
 from io import BytesIO
 from django.core.files import File
 from PIL import Image as Picture
+from hashlib import blake2b
 
 
 PLAN_STATUS = (
@@ -62,9 +64,21 @@ class Profile(models.Model):
         return self.user.username
 
 
+class TempUrlManager(models.Manager):
+
+    def hash_expire_url(self, obj):
+
+        key = bytes(str(timezone.now()), 'utf-8')
+        hash = blake2b(digest_size=16, key=key)
+        original_url = bytes(obj.original.url, 'utf-8')
+        hash.update(original_url)
+        return hash.hexdigest()
+
+
 class TempUrl(models.Model):
     user = ForeignKey(User, on_delete=models.CASCADE)
     hash = CharField(max_length=32)
     url = URLField()
     created_at = DateTimeField(auto_now_add=True)
     expiry = DateTimeField()
+    objects = TempUrlManager()
