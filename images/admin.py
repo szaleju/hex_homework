@@ -7,7 +7,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class TempUrlAdmin(admin.ModelAdmin):
-    list_display = ['user', 'url', 'created_at']
+    list_display = ['user', 'image_id', 'expiry']
 
 
 admin.site.register(Plan)

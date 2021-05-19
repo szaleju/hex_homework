@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.fields import BooleanField, CharField, DateTimeField, URLField
+from django.db.models.fields import BooleanField, CharField, DateTimeField, IntegerField, URLField
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 from django.utils import timezone
@@ -77,9 +77,8 @@ class TempUrlManager(models.Manager):
 
 class TempUrl(models.Model):
     user = ForeignKey(User, on_delete=models.CASCADE)
+    image = ForeignKey(Image, on_delete=models.CASCADE)
     hash = CharField(max_length=32)
-    url = URLField()
-    created_at = DateTimeField(auto_now_add=True)
     expiry = DateTimeField()
     objects = TempUrlManager()
 
