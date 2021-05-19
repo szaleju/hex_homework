@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.contrib.sites.shortcuts import get_current_site
 from datetime import timedelta
 from django.utils import timezone
+from django.http import FileResponse
 
 
 @api_view(['GET'])
@@ -35,8 +36,10 @@ def upload_image(request):
 @api_view(['GET'])
 def list_routes(request):
     routes = [
-        '/api/images/',
-        '/api/upload/'
+        'AUTHENTICATION REQUIRED',
+        '/api/images/   # List user images',
+        '/api/upload/   # Upload an image',
+        '/url/<int:pk>/ # Generate link with expire access for an image',
     ]
     return Response(routes)
 
@@ -50,14 +53,34 @@ def get_temp_url(request, pk):
         image = Image.objects.get(id=pk)
         hash = TempUrl.objects.hash_expire_url(image)
         current_site = str(get_current_site(request)) + '/'
-        temp_url = 'http://' + current_site + hash
+        temp_url = 'http://' + current_site + 'api/getimage/' + hash
         seconds = int(request.GET.get('seconds'))
-        TempUrl.objects.create(
-            user=user,
-            hash=hash,
-            url=temp_url,
-            expiry=timezone.now() + timedelta(seconds)
-        )
-        return Response(temp_url)
+        if 300 <= seconds <= 3000:
+            expiry = timezone.now() + timedelta(seconds=seconds)
+            TempUrl.objects.create(
+                user=user,
+                hash=hash,
+                url=temp_url,
+                expiry=expiry,
+            )
+            return Response(temp_url)
+        else:
+            return Response('Number of seconds must be between 300 and 3000.')
     else:
         return Response('Your plan does not allow for link generation.')
+
+
+@api_view(['GET'])
+def get_image(request):
+    path = str(request.get_full_path())
+    hash = path.split('/')[-1]
+
+    try:
+        temp_url = TempUrl.objects.get(hash=hash)
+        if temp_url.verify():
+            image = Image.objects.get(id=4)
+            return FileResponse(image.original)
+        else:
+            return Response('Your link expired.')
+    except TempUrl.DoesNotExist:
+        return Response('Your link is invalid.')

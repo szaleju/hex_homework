@@ -82,3 +82,6 @@ class TempUrl(models.Model):
     created_at = DateTimeField(auto_now_add=True)
     expiry = DateTimeField()
     objects = TempUrlManager()
+
+    def verify(self):
+        return timezone.now() < self.expiry
