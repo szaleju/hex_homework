@@ -28,7 +28,7 @@ def list_images(request):
 def upload_image(request):
     user = request.user
     image = request.FILES.get('image')
-    Image.objects.create()(user=user, original=image)
+    Image.objects.create(user=user, original=image)
     Image.save()
     return Response('Image was uploaded')
 
@@ -37,6 +37,7 @@ def upload_image(request):
 def list_routes(request):
     routes = [
         'AUTHENTICATION REQUIRED',
+        '/api/routes/   # List avaliable routes',
         '/api/images/   # List user images',
         '/api/upload/   # Upload an image',
         '/url/<int:pk>/ # Generate link with expire access for an image',

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.fields import BooleanField, CharField, DateTimeField, IntegerField, URLField
+from django.db.models.fields import BooleanField, CharField, DateTimeField
 from django.db.models.fields.files import ImageField
 from django.db.models.fields.related import ForeignKey
 from django.utils import timezone
